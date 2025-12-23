@@ -24,6 +24,8 @@ jwt:
     public-key: classpath:public.pem
     expiration: 86400000
 
-#jwt:
-#  secret: ${JWT_SECRET} # set via environment variable
-#  expiration: ${JWT_EXPIRATION:86400000}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
