@@ -22,6 +22,9 @@ public class JwtUtil {
     // ================= TOKEN GENERATION =================
     public String generateToken(AuthUser user) {
         return Jwts.builder()
+                .header()
+                .keyId("auth-key")
+                .and()
                 .subject(user.getId())
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole())

@@ -14,6 +14,8 @@ spring:
               enabled: true
               lower-case-service-id: true
 
+
+
   security:
     oauth2:
       resourceserver:
@@ -30,3 +32,8 @@ management:
     web:
       exposure:
         include: health,info
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: TRACE
