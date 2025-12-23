@@ -1,0 +1,7 @@
+# IDE
+.idea/
+
+# Security keys
+*.pem
+private.pem
+public.pem
