@@ -1,10 +1,8 @@
 package com.preshow.auth.service;
 
+import com.preshow.auth.client.UserServiceClient;
 import com.preshow.auth.config.JwtUtil;
-import com.preshow.auth.dto.LoginRequest;
-import com.preshow.auth.dto.LoginResponse;
-import com.preshow.auth.dto.RegisterRequest;
-import com.preshow.auth.dto.RegisterResponse;
+import com.preshow.auth.dto.*;
 import com.preshow.auth.exception.AuthException;
 import com.preshow.auth.model.AuthUser;
 import com.preshow.auth.repository.AuthUserRepository;
@@ -21,6 +19,7 @@ public class AuthService {
     private final AuthUserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final UserServiceClient userServiceClient;
 
     public RegisterResponse register(RegisterRequest request) {
 
@@ -39,6 +38,16 @@ public class AuthService {
                 .build();
 
         AuthUser saved = repository.save(user);
+
+        userServiceClient.createUser(
+                new CreateUserRequest(
+                        saved.getId(),
+                        saved.getEmail(),
+                        saved.getRole(),
+                        request.fullName(),
+                        request.mobile()
+                )
+        );
 
         return new RegisterResponse(
                 saved.getId(),
