@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-
     private final AuthUserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -39,15 +37,21 @@ public class AuthService {
 
         AuthUser saved = repository.save(user);
 
-        userServiceClient.createUser(
-                new CreateUserRequest(
-                        saved.getId(),
-                        saved.getEmail(),
-                        saved.getRole(),
-                        request.fullName(),
-                        request.mobile()
-                )
-        );
+        try {
+            userServiceClient.createUser(
+                    new CreateUserRequest(
+                            saved.getId(),
+                            saved.getEmail(),
+                            saved.getRole(),
+                            request.fullName(),
+                            request.mobile()
+                    )
+            );
+        }
+        catch (Exception e){
+            repository.deleteById(saved.getId());
+            throw new AuthException("User registration failed and rolled back", HttpStatus.BAD_REQUEST);
+        }
 
         return new RegisterResponse(
                 saved.getId(),

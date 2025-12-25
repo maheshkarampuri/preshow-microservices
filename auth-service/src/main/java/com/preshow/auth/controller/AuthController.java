@@ -6,6 +6,7 @@ import com.preshow.auth.dto.LoginResponse;
 import com.preshow.auth.dto.RegisterRequest;
 import com.preshow.auth.dto.RegisterResponse;
 import com.preshow.auth.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class AuthController {
 
     // Register new user
     @PostMapping("/register")
-    public RegisterResponse register(@RequestBody RegisterRequest request) {
+    public RegisterResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
 
