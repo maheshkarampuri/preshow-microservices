@@ -15,4 +15,5 @@ public class JwtProperties {
     private Resource privateKey;   // private.pem
     private Resource publicKey;    // public.pem
     private long expiration;
+    private Long refreshExpiration;
 }

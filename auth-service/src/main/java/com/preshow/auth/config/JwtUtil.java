@@ -80,6 +80,19 @@ public class JwtUtil {
         }
     }
 
+    public String generateRefreshToken(AuthUser user) {
+        return Jwts.builder()
+                .header()
+                .keyId("refresh-key")
+                .and()
+                .subject(user.getId())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpiration()))
+                .signWith(getPrivateKey(), Jwts.SIG.RS256)
+                .compact();
+    }
+
+
     // ================= CLAIM HELPERS =================
     public String extractUserId(String token) {
         return extractClaims(token).getSubject();

@@ -45,6 +45,7 @@ jwt:
     private-key: classpath:private.pem
     public-key: classpath:public.pem
     expiration: 86400000
+    refresh-expiration: 604800000
 
 management:
   endpoints:

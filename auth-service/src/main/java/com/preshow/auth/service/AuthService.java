@@ -77,13 +77,32 @@ public class AuthService {
             );
         }
 
-        String token = jwtUtil.generateToken(user);
+        String accessToken = jwtUtil.generateToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
 
         return new LoginResponse(
-                token,
+                accessToken,
+                refreshToken,
                 user.getId(),
                 user.getRole()
         );
+    }
+
+
+    public String refreshAccessToken(String refreshToken) {
+
+        if (jwtUtil.isTokenExpired(refreshToken)) {
+            throw new AuthException("Refresh token expired", HttpStatus.UNAUTHORIZED);
+        }
+
+        String userId = jwtUtil.extractUserId(refreshToken);
+
+        AuthUser user = repository.findById(userId)
+                .orElseThrow(() ->
+                        new AuthException("User not found", HttpStatus.NOT_FOUND)
+                );
+
+        return jwtUtil.generateToken(user);
     }
 
 }
