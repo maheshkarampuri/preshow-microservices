@@ -1,41 +1,43 @@
 package com.preshow.seat.service;
 
-import com.preshow.seat.enums.SeatStatus;
 import com.preshow.seat.model.Seat;
 import com.preshow.seat.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class SeatService {
+    private final SeatRepository seatRepository;
 
-    private final SeatRepository repository;
 
     public Seat createSeat(Seat seat) {
-        return repository.save(seat);
+        return seatRepository.save(seat);
     }
 
-    public List<Seat> getSeats(UUID theaterId, UUID movieId, LocalDateTime showTime) {
-        return repository.findByTheaterIdAndMovieIdAndShowTime(theaterId, movieId, showTime);
+    public List<Seat> getAllSeats() {
+        return seatRepository.findAll();
     }
 
-    public void updateStatus(UUID seatId, String status) {
-        Seat seat = repository.findById(seatId)
-                .orElseThrow(() -> new RuntimeException("Seat not found"));
+    public Seat getSeatById(UUID id) {
+        return seatRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Seat not found with id " + id));
+    }
 
-        try {
-            SeatStatus seatStatus = SeatStatus.valueOf(status.toUpperCase());
-            seat.setStatus(seatStatus);
-            repository.save(seat);
+    public Seat updateSeat(UUID id, Seat updatedSeat) {
+        Seat existing = getSeatById(id);
 
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid status. Allowed: AVAILABLE, HOLD, BOOKED");
-        }
+        existing.setTheaterId(updatedSeat.getTheaterId());
+        existing.setSeatNumber(updatedSeat.getSeatNumber());
+        existing.setCategory(updatedSeat.getCategory());
+
+        return seatRepository.save(existing);
+    }
+
+    public void deleteSeat(UUID id) {
+        seatRepository.deleteById(id);
     }
 
 }

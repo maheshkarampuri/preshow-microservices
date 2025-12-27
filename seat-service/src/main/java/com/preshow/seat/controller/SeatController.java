@@ -3,11 +3,8 @@ package com.preshow.seat.controller;
 import com.preshow.seat.model.Seat;
 import com.preshow.seat.service.SeatService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,34 +13,39 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SeatController {
 
+
     private final SeatService seatService;
 
-    // Create Seat
+    // CREATE
     @PostMapping
     public ResponseEntity<Seat> createSeat(@RequestBody Seat seat) {
-        Seat savedSeat = seatService.createSeat(seat);
-        return ResponseEntity.ok(savedSeat);
+        return ResponseEntity.ok(seatService.createSeat(seat));
     }
 
-    // Get All Seats for a Show
-    @GetMapping("/{theaterId}/{movieId}/{showTime}")
-    public ResponseEntity<List<Seat>> getSeats(
-            @PathVariable UUID theaterId,
-            @PathVariable UUID movieId,
-            @PathVariable
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime showTime
-    ) {
-        List<Seat> seats = seatService.getSeats(theaterId, movieId, showTime);
-        return ResponseEntity.ok(seats);
+    // READ ALL
+    @GetMapping
+    public ResponseEntity<List<Seat>> getSeats() {
+        return ResponseEntity.ok(seatService.getAllSeats());
     }
 
-    // Update Seat Status
-    @PatchMapping("/{seatId}/status")
-    public ResponseEntity<String> updateSeatStatus(
-            @PathVariable UUID seatId,
-            @RequestParam String status
-    ) {
-        seatService.updateStatus(seatId, status);
-        return ResponseEntity.ok("Seat status updated to " + status.toUpperCase());
+    // READ ONE
+    @GetMapping("/{id}")
+    public ResponseEntity<Seat> getSeat(@PathVariable UUID id) {
+        return ResponseEntity.ok(seatService.getSeatById(id));
+    }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<Seat> updateSeat(
+            @PathVariable UUID id,
+            @RequestBody Seat seat) {
+        return ResponseEntity.ok(seatService.updateSeat(id, seat));
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteSeat(@PathVariable UUID id) {
+        seatService.deleteSeat(id);
+        return ResponseEntity.ok("Seat deleted successfully");
     }
 }

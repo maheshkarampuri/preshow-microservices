@@ -8,8 +8,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface SeatRepository extends JpaRepository<Seat, UUID> {
-
-    List<Seat> findByTheaterIdAndMovieIdAndShowTime(UUID theaterId, UUID movieId, LocalDateTime showTime);
-
-    boolean existsByTheaterIdAndMovieIdAndShowTimeAndSeatNumber(UUID theaterId, UUID movieId, LocalDateTime showTime, String seatNumber);
 }
