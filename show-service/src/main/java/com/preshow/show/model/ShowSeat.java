@@ -2,11 +2,17 @@ package com.preshow.show.model;
 
 import com.preshow.show.enums.SeatStatus;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "show_seats")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ShowSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
