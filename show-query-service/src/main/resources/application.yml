@@ -1,0 +1,20 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: show-query-service
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/show-read-service
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: show-query-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
