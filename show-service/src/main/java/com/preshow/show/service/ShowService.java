@@ -1,8 +1,10 @@
 package com.preshow.show.service;
 
 import com.preshow.show.client.SeatClient;
+import com.preshow.show.dto.ShowCreatedEvent;
 import com.preshow.show.enums.SeatCategory;
 import com.preshow.show.enums.SeatStatus;
+import com.preshow.show.events.ShowEventProducer;
 import com.preshow.show.model.Show;
 import com.preshow.show.model.ShowSeat;
 import com.preshow.show.model.ShowSeatPricing;
@@ -24,6 +26,7 @@ public class ShowService {
     private final ShowSeatRepository showSeatRepository;
     private final SeatClient seatClient;
     private final ShowSeatPricingRepository seatPricingRepository;
+    private final ShowEventProducer producer;
 
     public Show create(Show show){
 
@@ -41,6 +44,19 @@ public class ShowService {
 
         //Create pricing for categories
         createDefaultPricing(saved.getId());
+
+        // Emit Event to Kafka
+        ShowCreatedEvent event = new ShowCreatedEvent(
+                saved.getId(),
+                saved.getTheaterId(),
+                saved.getMovieId(),
+                saved.getShowTime().toLocalDate(),
+                saved.getShowTime().toLocalTime().toString()
+        );
+
+        producer.sendShowCreated(event);
+
+        System.out.println("📩 ShowCreatedEvent published: " + event);
 
         return saved;
 

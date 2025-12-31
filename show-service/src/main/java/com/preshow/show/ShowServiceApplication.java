@@ -10,6 +10,8 @@ public class ShowServiceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ShowServiceApplication.class, args);
+        System.out.println("Successfully Executed Show Service...");
+
     }
 
 }

@@ -19,10 +19,13 @@ public class AuthorizationServerSecurityConfig {
                 new OAuth2AuthorizationServerConfigurer();
 
         http
-            .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-            .csrf(AbstractHttpConfigurer::disable)
-            .with(authorizationServerConfigurer, Customizer.withDefaults());
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/oauth2/token").permitAll()  // 👈 ALLOW TOKEN REQUESTS
+                        .anyRequest().authenticated()
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .with(authorizationServerConfigurer, Customizer.withDefaults());
 
         return http.build();
     }

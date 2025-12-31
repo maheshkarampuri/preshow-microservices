@@ -1,0 +1,10 @@
+package com.preshow.showquery.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
+
+@Configuration
+@EnableKafka
+public class KafkaConfig {
+    // No beans needed for consumer-only side
+}

@@ -9,12 +9,35 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/show-read-service
 
+  security:
+    oauth2:
+
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8081/.well-known/jwks.json
+
+      client:
+        registration:
+          internal-client:
+            provider: auth-provider
+            client-id: auth-service
+            client-secret: auth-secret
+            authorization-grant-type: client_credentials
+            scope: internal.write
+        provider:
+          auth-provider:
+            token-uri: http://localhost:8081/oauth2/token
+
+
   kafka:
+    bootstrap-servers: localhost:9092
     consumer:
-      bootstrap-servers: localhost:9092
       group-id: show-query-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.preshow.showquery.dto.ShowCreatedEvent
         spring.json.trusted.packages: "*"
+
