@@ -1,8 +1,11 @@
 package com.preshow.show.controller;
 
+import com.preshow.show.dto.ShowSeatResponse;
+import com.preshow.show.dto.ShowSeatWrapperResponse;
 import com.preshow.show.model.ShowSeat;
 import com.preshow.show.service.ShowSeatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +16,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ShowSeatController {
     private final ShowSeatService service;
+
+    @GetMapping("/{showId}/seats")
+    public ResponseEntity<ShowSeatWrapperResponse> getShowSeats(@PathVariable UUID showId) {
+        return ResponseEntity.ok(service.getShowSeats(showId));
+    }
 
     @PostMapping
     public ShowSeat create(@RequestBody ShowSeat seat){ return service.create(seat); }

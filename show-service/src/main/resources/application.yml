@@ -16,6 +16,18 @@ spring:
         jwt:
           jwk-set-uri: http://localhost:8081/.well-known/jwks.json
 
+      client:
+        registration:
+          internal-client:
+            provider: auth-provider
+            client-id: auth-service
+            client-secret: auth-secret
+            authorization-grant-type: client_credentials
+            scope: internal.write
+        provider:
+          auth-provider:
+            token-uri: http://localhost:8081/oauth2/token
+
   kafka:
     bootstrap-servers: localhost:9092
     producer:

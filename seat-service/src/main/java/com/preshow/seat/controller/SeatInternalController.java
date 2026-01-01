@@ -1,5 +1,6 @@
 package com.preshow.seat.controller;
 
+import com.preshow.seat.dto.SeatDTO;
 import com.preshow.seat.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,4 +22,10 @@ public class SeatInternalController {
     public List<UUID> getSeatIds(@PathVariable UUID theaterId) {
         return seatRepository.findIdsByTheaterId(theaterId);
     }
+
+    @GetMapping("/theater/{theaterId}")
+    public List<SeatDTO> getSeatsByIds(@PathVariable UUID theaterId) {
+        return seatRepository.findByTheaterId(theaterId);
+    }
+
 }

@@ -1,7 +1,10 @@
 package com.preshow.show.service;
 
 import com.preshow.show.client.SeatClient;
+import com.preshow.show.dto.SeatDTO;
 import com.preshow.show.dto.ShowCreatedEvent;
+import com.preshow.show.dto.ShowSeatResponse;
+import com.preshow.show.dto.ShowSeatWrapperResponse;
 import com.preshow.show.enums.SeatCategory;
 import com.preshow.show.enums.SeatStatus;
 import com.preshow.show.events.ShowEventProducer;
@@ -18,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,8 +62,38 @@ public class ShowService {
 
         System.out.println("📩 ShowCreatedEvent published: " + event);
 
+        producer.sendShowSeats(getShowSeats(saved.getId()));
+
         return saved;
 
+    }
+
+    public ShowSeatWrapperResponse getShowSeats(UUID showId) {
+
+        Show show = showRepository.findById(showId).orElseThrow(() -> new RuntimeException("Show not found"));
+
+        List<SeatDTO> seats = seatClient.getSeatsByTheater(show.getTheaterId());
+
+        Map<UUID, SeatStatus> statusMap = showSeatRepository.findByShowId(showId).stream()
+                .collect(Collectors.toMap(ShowSeat::getSeatId, ShowSeat::getStatus));
+
+        Map<SeatCategory, BigDecimal> pricingMap = seatPricingRepository.findByShowId(showId).stream()
+                .collect(Collectors.toMap(ShowSeatPricing::getCategory, ShowSeatPricing::getPrice));
+
+        List<ShowSeatResponse> seatResponses = seats.stream()
+                .map(seat -> ShowSeatResponse.builder()
+                        .id(seat.getId())
+                        .seatNumber(seat.getSeatNumber())
+                        .category(seat.getCategory())
+                        .price(pricingMap.get(seat.getCategory()))
+                        .status(statusMap.getOrDefault(seat.getId(), SeatStatus.AVAILABLE))
+                        .build())
+                .toList();
+
+        return ShowSeatWrapperResponse.builder()
+                .showId(showId)
+                .seats(seatResponses)
+                .build();
     }
 
     private void createDefaultPricing(UUID showId) {

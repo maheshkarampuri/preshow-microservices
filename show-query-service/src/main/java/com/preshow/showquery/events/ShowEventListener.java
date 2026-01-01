@@ -4,8 +4,10 @@ import com.preshow.showquery.client.TheaterClient;
 import com.preshow.showquery.dto.ShowCreatedEvent;
 import com.preshow.showquery.model.MovieShowListing;
 import com.preshow.showquery.model.ShowInfo;
+import com.preshow.showquery.dto.ShowSeatWrapperResponse;
 import com.preshow.showquery.model.TheaterInfo;
 import com.preshow.showquery.repository.MovieShowListingRepository;
+import com.preshow.showquery.repository.ShowSeatRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class ShowEventListener {
 
     private final MovieShowListingRepository repo;
     private final TheaterClient theaterClient;
+    private final ShowSeatRepository showSeatRepository;
 
     @KafkaListener(topics = "show-created", groupId = "show-query-group")
     public void listen(ShowCreatedEvent e) {
@@ -63,5 +66,11 @@ public class ShowEventListener {
         }
 
         repo.save(listing);
+    }
+
+    @KafkaListener(topics = "show-seats-updated", groupId = "show-query-group")
+    public void consumeShowSeats(ShowSeatWrapperResponse response){
+        showSeatRepository.save(response);
+        System.out.println("📥 Saved to MongoDB: " + response.getShowId());
     }
 }

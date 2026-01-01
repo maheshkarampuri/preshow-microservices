@@ -1,8 +1,10 @@
 package com.preshow.showquery.controller;
 
+import com.preshow.showquery.dto.ShowSeatWrapperResponse;
 import com.preshow.showquery.model.MovieShowListing;
 import com.preshow.showquery.service.ShowQueryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -28,5 +30,10 @@ public class ShowQueryController {
             @RequestParam LocalDate date
     ) {
         return service.getShowsForMovie(movieId, date);
+    }
+
+    @GetMapping("/{showId}/seats")
+    public ResponseEntity<ShowSeatWrapperResponse> getSeats(@PathVariable String showId) {
+        return ResponseEntity.ok(service.getShowSeats(showId));
     }
 }
