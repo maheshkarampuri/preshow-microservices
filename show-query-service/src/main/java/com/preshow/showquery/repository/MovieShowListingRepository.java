@@ -8,5 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MovieShowListingRepository extends MongoRepository<MovieShowListing, String> {
-    Optional<MovieShowListing> findByMovieIdAndDate(UUID movieId, LocalDate date);
+    Optional<MovieShowListing> findByMovieIdAndDate(String movieId, LocalDate date);
 }

@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface TheaterClient {
 
     @GetMapping("/theaters/{id}/name")
-    String getName(@PathVariable UUID id);
+    String getName(@PathVariable String id);
 }

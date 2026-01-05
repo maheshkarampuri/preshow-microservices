@@ -3,6 +3,7 @@ package com.preshow.booking.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -16,8 +17,16 @@ public class BookingSeat {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID bookingId;  // references Booking.id
+    private UUID bookingId;
 
     @Column(nullable = false)
-    private UUID showSeatId; // references ShowSeat.id (from show-service)
+    private UUID showSeatId;
+
+    @Column(nullable = false)
+    private String seatNumber;
+
+    @Column(nullable = false)
+    private BigDecimal price;
+
+
 }

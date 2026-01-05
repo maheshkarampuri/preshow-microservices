@@ -16,6 +16,29 @@ spring:
         jwt:
           jwk-set-uri: http://localhost:8081/.well-known/jwks.json
 
+      client:
+        registration:
+          internal-client:
+            provider: auth-provider
+            client-id: auth-service
+            client-secret: auth-secret
+            authorization-grant-type: client_credentials
+            scope: internal.write
+        provider:
+          auth-provider:
+            token-uri: http://localhost:8081/oauth2/token
+
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+
+  cache:
+    type: redis
+
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -29,3 +52,13 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.cloud.gateway: TRACE
+
+eureka:
+  instance:
+    instance-id: booking-service
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

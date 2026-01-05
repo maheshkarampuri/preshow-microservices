@@ -17,7 +17,7 @@ import java.util.UUID;
 public class MovieShowListing {
     @Id
     private String id;
-    private UUID movieId;
+    private String movieId;
     private LocalDate date;
     private List<TheaterInfo> theaters = new ArrayList<>();
 }

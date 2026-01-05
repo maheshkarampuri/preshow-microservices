@@ -13,19 +13,11 @@ spring:
             locator:
               enabled: true
               lower-case-service-id: true
-
-
-
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8081/.well-known/jwks.json
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
 
 management:
   endpoints:
@@ -37,3 +29,13 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.cloud.gateway: TRACE
+
+eureka:
+  instance:
+    instance-id: api-gateway
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

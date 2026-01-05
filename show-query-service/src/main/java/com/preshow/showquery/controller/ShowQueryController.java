@@ -26,7 +26,7 @@ public class ShowQueryController {
     // GET DATA FOR A MOVIE & DATE
     @GetMapping("/movie/{movieId}")
     public MovieShowListing getMovieShows(
-            @PathVariable UUID movieId,
+            @PathVariable String movieId,
             @RequestParam LocalDate date
     ) {
         return service.getShowsForMovie(movieId, date);

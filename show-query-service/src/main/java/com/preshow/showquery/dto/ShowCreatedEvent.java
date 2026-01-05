@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record ShowCreatedEvent(
-        UUID showId,
-        UUID theaterId,
-        UUID movieId,
+        String showId,
+        String theaterId,
+        String movieId,
         LocalDate showDate,
         String showTimeText
 ) {}

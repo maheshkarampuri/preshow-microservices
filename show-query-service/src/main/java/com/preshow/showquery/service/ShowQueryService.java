@@ -30,7 +30,7 @@ public class ShowQueryService {
     }
 
     // GET: FETCH READ MODEL
-    public MovieShowListing getShowsForMovie(UUID movieId, LocalDate date) {
+    public MovieShowListing getShowsForMovie(String movieId, LocalDate date) {
         return repository.findByMovieIdAndDate(movieId, date)
                 .orElseThrow(() -> new RuntimeException(" No shows found for movie " + movieId + " on " + date));
     }

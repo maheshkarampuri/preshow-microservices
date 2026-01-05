@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record ShowInfo(
-        UUID showId,
+        String showId,
         String time,
         String status
 ) {}
