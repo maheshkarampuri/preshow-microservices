@@ -1,7 +1,9 @@
 package com.preshow.showquery.events;
 
 import com.preshow.showquery.client.TheaterClient;
+import com.preshow.showquery.dto.BookingConfirmedEvent;
 import com.preshow.showquery.dto.ShowCreatedEvent;
+import com.preshow.showquery.enums.SeatStatus;
 import com.preshow.showquery.model.MovieShowListing;
 import com.preshow.showquery.model.ShowInfo;
 import com.preshow.showquery.dto.ShowSeatWrapperResponse;
@@ -11,6 +13,7 @@ import com.preshow.showquery.repository.ShowSeatRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,5 +75,31 @@ public class ShowEventListener {
     public void consumeShowSeats(ShowSeatWrapperResponse response){
         showSeatRepository.save(response);
         System.out.println("📥 Saved to MongoDB: " + response.getShowId());
+    }
+
+    @KafkaListener(topics = "seats-booked",groupId = "show-query-group")
+    @Transactional
+    public void onSeatsBooked(BookingConfirmedEvent event) {
+
+        System.out.println("🎟 Seats booked event received: " + event);
+
+        ShowSeatWrapperResponse showSeats =
+                showSeatRepository.findByShowId(event.showId())
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Show seats not found for showId " + event.showId()
+                                )
+                        );
+
+        // Update only booked seats
+        showSeats.getSeats().forEach(seat -> {
+            if (event.seatIds().contains(seat.getId())) {
+                seat.setStatus(SeatStatus.BOOKED);
+            }
+        });
+
+        showSeatRepository.save(showSeats);
+
+        System.out.println("✅ Updated read model for showId: " + event.showId());
     }
 }

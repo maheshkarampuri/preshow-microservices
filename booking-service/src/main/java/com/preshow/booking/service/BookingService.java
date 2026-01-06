@@ -8,6 +8,7 @@ import com.preshow.booking.model.Booking;
 import com.preshow.booking.model.BookingSeat;
 import com.preshow.booking.repository.BookingRepository;
 import com.preshow.booking.repository.BookingSeatRepository;
+import com.preshow.booking.repository.ProcessedEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class BookingService {
     private final BookingSeatRepository bookingSeatRepository;
     private final SeatLockService seatLockService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProcessedEventRepository processedEventRepository;
 
     @Transactional
     public UUID createBooking(UUID userId,UUID showId,List<UUID> seatIds,Map<UUID, SeatSnapshot> seatSnapshotMap){
@@ -83,34 +85,91 @@ public class BookingService {
         }
     }
 
+    // ===================== CONFIRM =====================
     @Transactional
-    public void confirmBooking(UUID bookingId,UUID showId,List<UUID> seatIds,UUID paymentId) {
+    public void confirmBooking(UUID bookingId, UUID paymentId) {
+
+        // 🔁 IDEMPOTENCY
+
+//        if (processedEventRepository.existsById(eventId)) {
+//            return;
+//        }
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow();
+
+
+        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+            return;
+        }
 
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setPaymentId(paymentId);
-
         bookingRepository.save(booking);
 
-        // ✅ publish event (locks released AFTER COMMIT)
+        List<UUID> seatIds =
+                bookingSeatRepository.findSeatIdsByBookingId(bookingId);
+
+        // publish AFTER COMMIT
         eventPublisher.publishEvent(
-                new BookingConfirmedEvent(showId, seatIds)
+                new BookingConfirmedEvent(booking.getShowId(), seatIds)
         );
     }
 
+    // ===================== CANCEL =====================
     @Transactional
-    public void cancelBooking(UUID bookingId,UUID showId,List<UUID> seatIds) {
+    public void cancelBooking(UUID bookingId) {
+
+        // 🔁 IDEMPOTENCY
+
+//        if (processedEventRepository.existsById(eventId)) {
+//            return;
+//        }
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow();
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            return;
+        }
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
 
-        // release locks immediately on cancel
-        seatLockService.unlockSeats(showId, seatIds);
+        List<UUID> seatIds =
+                bookingSeatRepository.findSeatIdsByBookingId(bookingId);
+
+        seatLockService.unlockSeats(booking.getShowId(), seatIds);
     }
+
+//    @Transactional
+//    public void confirmBooking(UUID bookingId,UUID showId,List<UUID> seatIds,UUID paymentId) {
+//
+//        Booking booking = bookingRepository.findById(bookingId)
+//                .orElseThrow();
+//
+//        booking.setStatus(BookingStatus.CONFIRMED);
+//        booking.setPaymentId(paymentId);
+//
+//        bookingRepository.save(booking);
+//
+//        // ✅ publish event (locks released AFTER COMMIT)
+//        eventPublisher.publishEvent(
+//                new BookingConfirmedEvent(showId, seatIds)
+//        );
+//    }
+//
+//    @Transactional
+//    public void cancelBooking(UUID bookingId,UUID showId,List<UUID> seatIds) {
+//
+//        Booking booking = bookingRepository.findById(bookingId)
+//                .orElseThrow();
+//
+//        booking.setStatus(BookingStatus.CANCELLED);
+//        bookingRepository.save(booking);
+//
+//        // release locks immediately on cancel
+//        seatLockService.unlockSeats(showId, seatIds);
+//    }
 
 }

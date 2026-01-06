@@ -1,4 +1,4 @@
-package com.preshow.show.config;
+package com.preshow.booking.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;

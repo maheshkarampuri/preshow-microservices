@@ -14,6 +14,7 @@ import com.preshow.show.repository.ShowSeatPricingRepository;
 import com.preshow.show.repository.ShowSeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -40,6 +41,11 @@ public class ShowSeatService {
         s.setSeatId(data.getSeatId());
         s.setStatus(data.getStatus());
         return repo.save(s);
+    }
+
+    @Transactional
+    public void markSeatsAsBooked(UUID showId, List<UUID> seatIds) {
+        repo.markBooked(showId, seatIds);
     }
 
     public void delete(UUID id){ repo.deleteById(id); }
