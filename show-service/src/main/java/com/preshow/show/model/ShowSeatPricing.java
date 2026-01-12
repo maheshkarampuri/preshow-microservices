@@ -3,8 +3,10 @@ package com.preshow.show.model;
 import com.preshow.show.enums.SeatCategory;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -26,4 +28,8 @@ public class ShowSeatPricing {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 }

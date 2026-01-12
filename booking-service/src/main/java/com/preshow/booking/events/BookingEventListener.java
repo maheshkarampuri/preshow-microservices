@@ -1,5 +1,6 @@
 package com.preshow.booking.events;
 
+import com.preshow.booking.dto.BookingConfirmed;
 import com.preshow.booking.dto.BookingConfirmedEvent;
 import com.preshow.booking.service.SeatLockService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ public class BookingEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleBookingConfirmed(BookingConfirmedEvent event) {
-
         seatLockService.unlockSeats(
                 event.showId(),
                 event.seatIds()
@@ -25,5 +25,12 @@ public class BookingEventListener {
 
         template.send("seats-booked",event);
 
+        BookingConfirmed bookingEvent = new BookingConfirmed(event.bookingId());
+
+        template.send(
+                "booking-confirmed",
+                event.bookingId().toString(),
+                bookingEvent
+        );
     }
 }

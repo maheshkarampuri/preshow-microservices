@@ -11,7 +11,7 @@ spring:
     password: Root@123
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9094
     consumer:
       group-id: booking-service
       auto-offset-reset: earliest
@@ -65,6 +65,15 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.cloud.gateway: TRACE
+#      # Spring Kafka (listeners, container, deserialization)
+#    org.springframework.kafka: DEBUG
+#
+#      # Apache Kafka client (poll, fetch, metadata)
+#    org.apache.kafka: DEBUG
+#
+#      # Optional but VERY useful
+#    org.springframework.kafka.listener: DEBUG
+#    org.springframework.kafka.support.serializer: DEBUG
 
 eureka:
   instance:

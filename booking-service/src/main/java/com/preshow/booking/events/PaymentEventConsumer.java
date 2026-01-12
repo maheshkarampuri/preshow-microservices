@@ -41,4 +41,24 @@ public class PaymentEventConsumer {
         bookingService.cancelBooking(event.bookingId());
 
     }
+
+    // ===================== PAYMENT REFUNDED =====================
+    @KafkaListener(topics = "payment-refunded",groupId = "booking-service")
+    @Transactional
+    public void onPaymentRefunded(PaymentFailedEvent event) {
+
+        System.out.println("Payment refunded event received: {}"+event);
+
+        bookingService.cancelBooking(event.bookingId());
+    }
+
+    // ===================== PAYMENT REFUND FAILED =====================
+    @KafkaListener(topics = "payment-refund-failed",groupId = "booking-service")
+    @Transactional
+    public void onPaymentRefundFailed(PaymentFailedEvent event) {
+
+        System.out.println("Payment refund failed event received: {}"+event);
+
+        bookingService.cancelBooking(event.bookingId());
+    }
 }

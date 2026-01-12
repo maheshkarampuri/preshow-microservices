@@ -46,6 +46,10 @@ public class Payment {
     @Column(unique = true)
     private String providerPaymentId;
 
+    // razorpay_refund_id
+    @Column(unique = true)
+    private String providerRefundId;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 

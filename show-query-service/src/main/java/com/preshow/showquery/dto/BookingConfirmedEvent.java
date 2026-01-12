@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record BookingConfirmedEvent(
         String showId,
-        List<String> seatIds
+        List<String> seatIds,
+        UUID bookingId
 ) {
 }

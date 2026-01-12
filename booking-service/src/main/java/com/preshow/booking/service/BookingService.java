@@ -112,7 +112,7 @@ public class BookingService {
 
         // publish AFTER COMMIT
         eventPublisher.publishEvent(
-                new BookingConfirmedEvent(booking.getShowId(), seatIds)
+                new BookingConfirmedEvent(booking.getShowId(), seatIds,booking.getId())
         );
     }
 

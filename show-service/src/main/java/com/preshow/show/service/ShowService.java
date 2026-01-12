@@ -40,8 +40,16 @@ public class ShowService {
         List<UUID> seatIds = seatClient.getSeatIds(show.getTheaterId());
 
         // create show seats
+//        List<ShowSeat> showSeats = seatIds.stream()
+//                .map(id -> new ShowSeat(null, show.getId(), id, SeatStatus.AVAILABLE))
+//                .toList();
+
         List<ShowSeat> showSeats = seatIds.stream()
-                .map(id -> new ShowSeat(null, show.getId(), id, SeatStatus.AVAILABLE))
+                .map(seatId -> ShowSeat.builder()
+                        .showId(show.getId())
+                        .seatId(seatId)
+                        .status(SeatStatus.AVAILABLE)
+                        .build())
                 .toList();
 
         showSeatRepository.saveAll(showSeats);

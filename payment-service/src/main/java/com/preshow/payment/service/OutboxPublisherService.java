@@ -41,7 +41,7 @@ public class OutboxPublisherService {
                                             event.getPayload(),
                                             PaymentSuccessEvent.class
                                     );
-                            case "payment-failed" ->
+                            case "payment-failed", "payment-refunded", "payment-refund-failed" ->
                                     objectMapper.readValue(
                                             event.getPayload(),
                                             PaymentFailedEvent.class
@@ -53,6 +53,8 @@ public class OutboxPublisherService {
                 kafkaTemplate
                         .send(event.getTopic(), event.getAggregateId(), payload)
                         .get();
+
+                System.out.println("sent : "+event.getTopic());
 
                 event.setStatus(OutboxStatus.SENT);
                 outboxEventRepository.save(event);
