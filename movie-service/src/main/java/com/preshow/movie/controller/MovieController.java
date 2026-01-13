@@ -1,6 +1,7 @@
 package com.preshow.movie.controller;
 
 import com.preshow.movie.model.Movie;
+import com.preshow.movie.repository.MovieRepository;
 import com.preshow.movie.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,14 @@ import java.util.UUID;
 public class MovieController {
 
     private final MovieService service;
+    private final MovieRepository repo;
+
+    @GetMapping("/{id}/name")
+    public String getMovieName(@PathVariable UUID id){
+        return repo.findById(id)
+                .map(Movie::getTitle)
+                .orElse("UNKNOWN");
+    }
 
     @PostMapping
     public ResponseEntity<Movie> create(@RequestBody Movie movie) {

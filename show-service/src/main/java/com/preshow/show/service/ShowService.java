@@ -1,6 +1,8 @@
 package com.preshow.show.service;
 
+import com.preshow.show.client.MovieClient;
 import com.preshow.show.client.SeatClient;
+import com.preshow.show.client.TheaterClient;
 import com.preshow.show.dto.SeatDTO;
 import com.preshow.show.dto.ShowCreatedEvent;
 import com.preshow.show.dto.ShowSeatResponse;
@@ -16,6 +18,7 @@ import com.preshow.show.repository.ShowSeatPricingRepository;
 import com.preshow.show.repository.ShowSeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,7 +34,10 @@ public class ShowService {
     private final SeatClient seatClient;
     private final ShowSeatPricingRepository seatPricingRepository;
     private final ShowEventProducer producer;
+    private final TheaterClient theaterClient;
+    private final MovieClient movieClient;
 
+    @Transactional
     public Show create(Show show){
 
         Show saved = showRepository.save(show);
@@ -57,11 +63,16 @@ public class ShowService {
         //Create pricing for categories
         createDefaultPricing(saved.getId());
 
+        String theaterName = theaterClient.getName(String.valueOf(saved.getTheaterId()));
+        String movieName = movieClient.getName(String.valueOf(saved.getMovieId()));
+
         // Emit Event to Kafka
         ShowCreatedEvent event = new ShowCreatedEvent(
                 saved.getId(),
                 saved.getTheaterId(),
+                theaterName,
                 saved.getMovieId(),
+                movieName,
                 saved.getShowTime().toLocalDate(),
                 saved.getShowTime().toLocalTime().toString()
         );

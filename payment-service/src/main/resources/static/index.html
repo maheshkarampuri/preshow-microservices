@@ -3,27 +3,66 @@
 <head>
     <title>Razorpay Payment Test</title>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+        input {
+            width: 350px;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Razorpay Payment</h2>
+<h2>Razorpay Payment Test</h2>
+
+<label>Booking ID</label><br>
+<input id="bookingId" placeholder="Enter booking UUID" /><br>
+
+<label>Amount</label><br>
+<input id="amount" type="number" placeholder="Enter amount" /><br>
+
+<label>JWT Token</label><br>
+<input id="token" placeholder="Paste JWT token" /><br><br>
+
 <button onclick="pay()">Pay Now</button>
 
 <script>
     async function pay() {
 
-        // Call backend to create payment + order
+        const bookingId = document.getElementById("bookingId").value;
+        const amount = document.getElementById("amount").value;
+        const token = document.getElementById("token").value;
+
+        if (!bookingId || !amount || !token) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        // Call backend to create order
         const response = await fetch("http://localhost:8080/payment-service/payments", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJraWQiOiJhdXRoLWtleSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIzOGE3YWRmYi0xZjQ3LTQ1OGItYjI1OC1kZTIwMTk3N2FjNDAiLCJlbWFpbCI6ImdvdmluZEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2ODE5Mjg2MCwiZXhwIjoxNzY4Mjc5MjYwfQ.fhRc8_KPTQLzvtjfAob_UO-UvYL9NL7xnn5k3OVi5YTOTv8oZbOCr6GdWWellsiqW-GoMinaVk5m4f4vEM6lbmoWn1btSLgjWW3CWvDyxCQqk1w0DAcYAAKpmUJASyOBEFoz-2q0aym8Ld1ZK0-s-IvNfknh8M2OSqxEnLdlCCCTTawD5jSzFQ7MyVj8UKKnY7Lg-v-vU4ELqAoJ4aFBdeQOJvHJ6eq3cS5h2cLO1RDDosvShmznoI31w50F6O613eHeG_dnXU3IAU8eLpXIJpqlD4840_GqMwGMVjCSJIQkTVjmI6tmlnl9zZdg_hwgLrx-Mqu1RGEu6dmZgAmRaA"
+                "Authorization": "Bearer " + token
             },
             body: JSON.stringify({
-                bookingId: "2ec12e99-509f-47b1-a3ef-c23c157aeaf2",
-                amount: 700
+                bookingId: bookingId,
+                amount: amount
             })
         });
+
+        if (!response.ok) {
+            alert("Payment creation failed");
+            return;
+        }
 
         const data = await response.json();
 
@@ -37,8 +76,8 @@
             description: "Movie Ticket Payment",
 
             handler: function (response) {
-                console.log("Frontend success callback", response);
-                alert("Payment initiated. Final status via webhook.");
+                console.log("Payment Success Callback", response);
+                alert("Payment successful. Waiting for webhook confirmation.");
             }
         };
 

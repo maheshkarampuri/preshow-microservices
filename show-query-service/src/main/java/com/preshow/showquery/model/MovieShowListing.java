@@ -18,6 +18,7 @@ public class MovieShowListing {
     @Id
     private String id;
     private String movieId;
+    private String movieName;
     private LocalDate date;
     private List<TheaterInfo> theaters = new ArrayList<>();
 }

@@ -6,7 +6,9 @@ import java.util.UUID;
 public record ShowCreatedEvent(
         UUID showId,
         UUID theaterId,
+        String theaterName,
         UUID movieId,
+        String movieName,
         LocalDate showDate,
         String showTimeText
 ) {}

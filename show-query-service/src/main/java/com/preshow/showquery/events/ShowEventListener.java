@@ -38,12 +38,11 @@ public class ShowEventListener {
                 .orElse(new MovieShowListing(
                         documentId,
                         e.movieId(),
+                        e.movieName(),
                         e.showDate(),
                         new ArrayList<>()
                 ));
 
-
-        String name = theaterClient.getName(e.theaterId());
 
         ShowInfo showInfo = new ShowInfo(
                 e.showId(),
@@ -62,7 +61,7 @@ public class ShowEventListener {
             listing.getTheaters().add(
                     new TheaterInfo(
                             e.theaterId(),
-                            name,
+                            e.theaterName(),
                             new ArrayList<>(List.of(showInfo))
                     )
             );
