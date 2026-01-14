@@ -1,5 +1,6 @@
 package com.preshow.show.controller;
 
+import com.preshow.show.client.SeatClient;
 import com.preshow.show.model.Show;
 import com.preshow.show.service.ShowService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,9 @@ public class ShowController {
     private final ShowService service;
 
     @PostMapping
-    public Show create(@RequestBody Show s){ return service.create(s); }
+    public Show create(@RequestBody Show s){
+        return service.create(s);
+    }
 
     @GetMapping
     public List<Show> getAll(){ return service.getAll(); }

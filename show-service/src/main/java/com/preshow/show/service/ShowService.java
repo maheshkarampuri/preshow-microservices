@@ -4,12 +4,10 @@ import com.preshow.show.client.MovieClient;
 import com.preshow.show.client.SeatClient;
 import com.preshow.show.client.TheaterClient;
 import com.preshow.show.dto.SeatDTO;
-import com.preshow.show.dto.ShowCreatedEvent;
 import com.preshow.show.dto.ShowSeatResponse;
 import com.preshow.show.dto.ShowSeatWrapperResponse;
 import com.preshow.show.enums.SeatCategory;
 import com.preshow.show.enums.SeatStatus;
-import com.preshow.show.events.ShowEventProducer;
 import com.preshow.show.model.Show;
 import com.preshow.show.model.ShowSeat;
 import com.preshow.show.model.ShowSeatPricing;
@@ -18,7 +16,6 @@ import com.preshow.show.repository.ShowSeatPricingRepository;
 import com.preshow.show.repository.ShowSeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,59 +30,71 @@ public class ShowService {
     private final ShowSeatRepository showSeatRepository;
     private final SeatClient seatClient;
     private final ShowSeatPricingRepository seatPricingRepository;
-    private final ShowEventProducer producer;
+    private final ShowTxService showTxService;
     private final TheaterClient theaterClient;
     private final MovieClient movieClient;
 
-    @Transactional
-    public Show create(Show show){
-
-        Show saved = showRepository.save(show);
-
-        // get seats from seat-service for the theater
+    public Show create(Show show) {
         List<UUID> seatIds = seatClient.getSeatIds(show.getTheaterId());
+        if (seatIds == null || seatIds.isEmpty()) {
+            throw new IllegalStateException("No seats found for theater");
+        }
+        String theaterName = theaterClient.getName(String.valueOf(show.getTheaterId()));
+        String movieName = movieClient.getName(String.valueOf(show.getMovieId()));
 
-        // create show seats
-//        List<ShowSeat> showSeats = seatIds.stream()
-//                .map(id -> new ShowSeat(null, show.getId(), id, SeatStatus.AVAILABLE))
-//                .toList();
-
-        List<ShowSeat> showSeats = seatIds.stream()
-                .map(seatId -> ShowSeat.builder()
-                        .showId(show.getId())
-                        .seatId(seatId)
-                        .status(SeatStatus.AVAILABLE)
-                        .build())
-                .toList();
-
-        showSeatRepository.saveAll(showSeats);
-
-        //Create pricing for categories
-        createDefaultPricing(saved.getId());
-
-        String theaterName = theaterClient.getName(String.valueOf(saved.getTheaterId()));
-        String movieName = movieClient.getName(String.valueOf(saved.getMovieId()));
-
-        // Emit Event to Kafka
-        ShowCreatedEvent event = new ShowCreatedEvent(
-                saved.getId(),
-                saved.getTheaterId(),
-                theaterName,
-                saved.getMovieId(),
-                movieName,
-                saved.getShowTime().toLocalDate(),
-                saved.getShowTime().toLocalTime().toString()
-        );
-
-        producer.sendShowCreated(event);
-
-        System.out.println("📩 ShowCreatedEvent published: " + event);
-
-        producer.sendShowSeats(getShowSeats(saved.getId()));
-
-        return saved;
-
+        return showTxService.createTransactional(show, seatIds,theaterName,movieName);
     }
+
+
+//    @Transactional
+//    public Show create(Show show){
+//
+//        Show saved = showRepository.save(show);
+//
+//        // get seats from seat-service for the theater
+//        List<UUID> seatIds = seatClient.getSeatIds(show.getTheaterId());
+//
+//        // create show seats
+////        List<ShowSeat> showSeats = seatIds.stream()
+////                .map(id -> new ShowSeat(null, show.getId(), id, SeatStatus.AVAILABLE))
+////                .toList();
+//
+//        List<ShowSeat> showSeats = seatIds.stream()
+//                .map(seatId -> ShowSeat.builder()
+//                        .showId(show.getId())
+//                        .seatId(seatId)
+//                        .status(SeatStatus.AVAILABLE)
+//                        .build())
+//                .toList();
+//
+//        showSeatRepository.saveAll(showSeats);
+//
+//        //Create pricing for categories
+//        createDefaultPricing(saved.getId());
+//
+//        String theaterName = theaterClient.getName(String.valueOf(saved.getTheaterId()));
+//        String movieName = movieClient.getName(String.valueOf(saved.getMovieId()));
+//
+//        // Emit Event to Kafka
+//        ShowCreatedEvent event = new ShowCreatedEvent(
+//                saved.getId(),
+//                saved.getTheaterId(),
+//                theaterName,
+//                saved.getMovieId(),
+//                movieName,
+//                saved.getShowTime().toLocalDate(),
+//                saved.getShowTime().toLocalTime().toString()
+//        );
+//
+//        producer.sendShowCreated(event);
+//
+//        System.out.println("📩 ShowCreatedEvent published: " + event);
+//
+//        producer.sendShowSeats(getShowSeats(saved.getId()));
+//
+//        return saved;
+//
+//    }
 
     public ShowSeatWrapperResponse getShowSeats(UUID showId) {
 
@@ -115,24 +124,7 @@ public class ShowService {
                 .build();
     }
 
-    private void createDefaultPricing(UUID showId) {
-        Map<SeatCategory, BigDecimal> defaultPrices = Map.of(
-                SeatCategory.SILVER, new BigDecimal("150"),
-                SeatCategory.GOLD, new BigDecimal("250"),
-                SeatCategory.PLATINUM, new BigDecimal("350"),
-                SeatCategory.VIP, new BigDecimal("500")
-        );
 
-        List<ShowSeatPricing> pricing = defaultPrices.entrySet().stream()
-                .map(e -> ShowSeatPricing.builder()
-                        .showId(showId)
-                        .category(e.getKey())
-                        .price(e.getValue())
-                        .build())
-                .toList();
-
-        seatPricingRepository.saveAll(pricing);
-    }
     public List<Show> getAll(){ return showRepository.findAll(); }
     public Show getById(UUID id){ return showRepository.findById(id).orElseThrow(); }
     public Show update(UUID id, Show data){
