@@ -14,6 +14,7 @@ import com.preshow.show.model.ShowSeatPricing;
 import com.preshow.show.repository.ShowRepository;
 import com.preshow.show.repository.ShowSeatPricingRepository;
 import com.preshow.show.repository.ShowSeatRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,8 @@ public class ShowService {
     private final TheaterClient theaterClient;
     private final MovieClient movieClient;
 
+
+    @CircuitBreaker(name = "seatService", fallbackMethod = "seatFallback")
     public Show create(Show show) {
         List<UUID> seatIds = seatClient.getSeatIds(show.getTheaterId());
         if (seatIds == null || seatIds.isEmpty()) {
@@ -43,6 +46,11 @@ public class ShowService {
         String movieName = movieClient.getName(String.valueOf(show.getMovieId()));
 
         return showTxService.createTransactional(show, seatIds,theaterName,movieName);
+    }
+
+
+    private Show seatFallback(Show show, Throwable ex) {
+        throw new IllegalStateException("Seat service unavailable");
     }
 
 
